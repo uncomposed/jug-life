@@ -11,10 +11,15 @@ import { Log } from './ui/Log'
 import { AboutSheet, SensorSheet, SetupSheet, TastingSheet } from './ui/Sheets'
 import { hiddenAlerts, visibleAlerts } from './ui/derive'
 import { Tour } from './ui/Tour'
+import { GlossaryBody, InfoContext, Linkify, Popover } from './ui/Info'
+import { GLOSSARY } from './ui/glossary'
+import { PART_TITLE, PartMenu, type Part } from './ui/Parts'
 
 type View = 'sensors' | 'curtain'
 type Tab = 'charts' | 'actions' | 'log'
 type SheetName = 'setup' | 'sensors' | 'taste' | 'about' | null
+type PartPop = { el: Element; kind: 'part'; part: Part }
+type Pop = { el: Element; kind: 'info'; id: string; back?: PartPop } | PartPop | null
 
 interface Saved {
   v: 1
@@ -70,6 +75,25 @@ export default function App() {
   const [sheet, setSheet] = useState<SheetName>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [touring, setTouring] = useState(firstVisit)
+  const [pop, setPop] = useState<Pop>(null)
+  const closePop = useCallback(() => setPop(null), [])
+  const openInfo = useCallback(
+    (id: string, el: Element) =>
+      // a word tapped inside an open pop-up keeps that pop-up's anchor, with a way back
+      setPop((prev) => (prev && el.closest('.popover') ? { el: prev.el, kind: 'info', id, back: prev.kind === 'part' ? prev : prev.back } : { el, kind: 'info', id })),
+    [],
+  )
+  const openPart = useCallback((part: Part, el: Element) => {
+    setPlaying(false)
+    setPop({ el, kind: 'part', part })
+  }, [])
+  const toggleSensor = (id: SensorId) =>
+    setSensors((prev) => {
+      const n = new Set(prev)
+      if (n.has(id)) n.delete(id)
+      else n.add(id)
+      return n
+    })
 
   const tl = useMemo(() => runTimeline(setup, actions), [setup, actions])
   const idx = Math.min(tl.snapshots.length - 1, Math.round(t / tl.stepH))
@@ -134,6 +158,7 @@ export default function App() {
   const alerts = view === 'sensors' ? visibleAlerts(snap, sensors) : [...visibleAlerts(snap, new Set(['probe'])), ...hiddenAlerts(snap)]
 
   return (
+    <InfoContext.Provider value={openInfo}>
     <div className={`app view-${view}`}>
       <header className="top">
         <div className="brand">
@@ -182,12 +207,18 @@ export default function App() {
             <ul className="alerts" aria-live="polite">
               {alerts.map((a) => (
                 <li key={a.id}>
-                  <strong>▲ {a.title}</strong> <span>{a.detail}</span>
+                  <strong>▲ {a.title}</strong>{' '}
+                  <span>
+                    <Linkify text={a.detail} />
+                  </span>
                 </li>
               ))}
             </ul>
           )}
-          <Jug tl={tl} snap={snap} view={view} sensors={sensors} lastSample={lastSample} />
+          <p className="tap-hint">
+            <span aria-hidden="true">☝</span> Tap any part of the jug to change it
+          </p>
+          <Jug tl={tl} snap={snap} view={view} sensors={sensors} lastSample={lastSample} onPart={openPart} />
           <p className="honesty">Simulated · not connected to a real jug · numbers are estimates</p>
         </section>
 
@@ -196,17 +227,25 @@ export default function App() {
         </section>
 
         <section className="tabs-area">
-          <div className="tabs" role="tablist">
+          <div className="tabs" role="tablist" aria-label="Panels">
             {(
               [
-                ['charts', 'Charts'],
-                ['actions', 'Do something'],
-                ['log', 'Log'],
-              ] as [Tab, string][]
-            ).map(([id, label]) => (
+                ['charts', 'Charts', 'see the trend', 'M3 17 L8 11 L12 14 L18 6 M3 20 H21'],
+                ['actions', 'Do something', 'change the brew', 'M12 3 V13 M7 8 L12 3 L17 8 M5 15 V20 H19 V15'],
+                ['log', 'Log', 'what happened', 'M8 6 H20 M8 12 H20 M8 18 H20 M4 6 H4.01 M4 12 H4.01 M4 18 H4.01'],
+              ] as [Tab, string, string, string][]
+            ).map(([id, label, sub, icon]) => (
               <button key={id} role="tab" id={`tab-${id}`} aria-selected={tab === id} onClick={() => setTab(id)}>
-                {label}
-                {id === 'log' && <span className="count">{tl.events.filter((e) => e.t <= t).length}</span>}
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                  <path d={icon} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="tab-text">
+                  <span className="tab-label">
+                    {label}
+                    {id === 'log' && <span className="count">{tl.events.filter((e) => e.t <= t).length}</span>}
+                  </span>
+                  <span className="tab-sub">{sub}</span>
+                </span>
               </button>
             ))}
           </div>
@@ -246,18 +285,40 @@ export default function App() {
         <SensorSheet
           sensors={sensors}
           onClose={() => setSheet(null)}
-          onToggle={(id) =>
-            setSensors((prev) => {
-              const n = new Set(prev)
-              if (n.has(id)) n.delete(id)
-              else n.add(id)
-              return n
-            })
-          }
+          onToggle={toggleSensor}
         />
       )}
       {sheet === 'taste' && <TastingSheet tl={tl} t={t} onClose={() => setSheet(null)} />}
       {sheet === 'about' && <AboutSheet onClose={() => setSheet(null)} />}
+      {pop && (
+        <Popover anchor={pop.el} onClose={closePop} title={pop.kind === 'info' ? GLOSSARY[pop.id].title : PART_TITLE[pop.part]}>
+          {pop.kind === 'info' ? (
+            <>
+              {pop.back && (
+                <button className="pop-back" onClick={() => setPop(pop.back!)}>
+                  ← Back to {PART_TITLE[pop.back.part].toLowerCase()}
+                </button>
+              )}
+              <GlossaryBody id={pop.id} />
+            </>
+          ) : (
+            <PartMenu
+              part={pop.part}
+              tl={tl}
+              snap={snap}
+              sensors={sensors}
+              lastSample={lastSample}
+              onAct={act}
+              onToggleSensor={toggleSensor}
+              view={view}
+              onTaste={() => {
+                setPop(null)
+                setSheet('taste')
+              }}
+            />
+          )}
+        </Popover>
+      )}
       {touring && (
         <Tour
           onView={setView}
@@ -273,5 +334,6 @@ export default function App() {
         />
       )}
     </div>
+    </InfoContext.Provider>
   )
 }

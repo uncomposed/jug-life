@@ -21,7 +21,7 @@ export const TOUR_STEPS: Step[] = [
     target: '.jug',
     view: 'sensors',
     title: 'The jug',
-    body: 'Here is the jug, stopper and airlock. The circles with letters are sensors: TI-101 is a stick-on thermometer strip, FQ-103 counts airlock bubbles. A dashed circle is a reading you take by hand.',
+    body: 'Here is the jug, stopper and airlock. The circles with letters are sensors: TI-101 is a stick-on thermometer strip, FQ-103 counts airlock bubbles. Tap any part, like the airlock, a sensor or the beer, to change it.',
   },
   {
     target: '.viewswitch',
@@ -39,7 +39,7 @@ export const TOUR_STEPS: Step[] = [
     target: '.readings',
     view: 'curtain',
     title: 'The real numbers',
-    body: 'These cards show what is hidden from a brewer: true temperature, how much sugar is gone, alcohol, and any wild microbes.',
+    body: 'These cards show what is hidden from a brewer: true temperature, sugar, alcohol, wild microbes. Tap the round i next to any of them to see what drives it and how to change it.',
   },
   {
     target: '.time-row',
@@ -68,7 +68,7 @@ export const TOUR_STEPS: Step[] = [
     target: '.tabs-area',
     tab: 'log',
     title: 'The log',
-    body: 'Everything that happened, newest first. In sensor view, open “What’s really happening” under an entry to see the hidden cause.',
+    body: 'Everything that happened, newest first. In sensor view, open “What’s really happening” to see the hidden cause. Underlined words explain themselves when tapped.',
   },
   {
     target: '.top-actions',

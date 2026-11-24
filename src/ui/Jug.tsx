@@ -1,6 +1,34 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import type { Snapshot, Timeline } from '../model/sim'
 import { readBubbler, readProbe, readStrip, type SampleReading, type SensorId } from '../model/sensors'
+import type { Part } from './Parts'
+
+type OnPart = (p: Part, el: Element) => void
+
+/** A tappable part of the drawing. */
+function Hot({ part, label, onPart, children }: { part: Part; label: string; onPart?: OnPart; children: ReactNode }) {
+  if (!onPart) return <>{children}</>
+  return (
+    <g
+      className="hot"
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      onClick={(e) => {
+        e.stopPropagation()
+        onPart(part, e.currentTarget)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onPart(part, e.currentTarget)
+        }
+      }}
+    >
+      {children}
+    </g>
+  )
+}
 
 const STOP_Y = 66
 const BOTTOM = 410
@@ -34,9 +62,10 @@ interface Props {
   view: 'sensors' | 'curtain'
   sensors: Set<SensorId>
   lastSample?: SampleReading
+  onPart?: OnPart
 }
 
-export function Jug({ tl, snap, view, sensors, lastSample }: Props) {
+export function Jug({ tl, snap, view, sensors, lastSample, onPart }: Props) {
   const dots = useMemo(() => seeded(160, 3), [])
   const bubbleSeeds = useMemo(() => seeded(28, 11), [])
   const curtain = view === 'curtain'
@@ -56,7 +85,7 @@ export function Jug({ tl, snap, view, sensors, lastSample }: Props) {
   const strip = readStrip(tl, snap)
 
   return (
-    <svg className="jug" viewBox="0 0 360 430" role="img" aria-label={curtain ? 'Inside the jug: yeast, bubbles and foam' : 'The jug as a brewer sees it, with sensor tags'}>
+    <svg className="jug" viewBox="0 0 360 430" role="group" aria-label={curtain ? 'Inside the jug: yeast, bubbles and foam' : 'The jug as a brewer sees it, with sensor tags'}>
       <defs>
         <clipPath id="inside">
           <path d={JUG_PATH} />
@@ -112,6 +141,9 @@ export function Jug({ tl, snap, view, sensors, lastSample }: Props) {
             />
           ))}
       </g>
+      <Hot part="beer" label="The beer: add nutrient, swirl, move or taste" onPart={onPart}>
+        <path className="hit" d={JUG_PATH} />
+      </Hot>
 
       {/* glass */}
       <path d={JUG_PATH} fill="none" stroke="var(--glass)" strokeWidth="5" strokeLinejoin="round" />
@@ -119,19 +151,26 @@ export function Jug({ tl, snap, view, sensors, lastSample }: Props) {
       <path d="M100 220 V380" stroke="var(--glass-shine)" strokeWidth="4" strokeLinecap="round" />
 
       {/* stopper */}
+      <Hot part="stopper" label={snap.stopperOut ? 'Stopper popped out: reseat it' : 'Stopper'} onPart={onPart}>
       {snap.stopperOut ? (
         <g>
+          <rect className="hit" x="32" y="22" width="66" height="44" rx="6" />
           <path d="M40 30 l50 8 -6 20 -40 -6z" fill="var(--stopper)" />
           <path d="M202 70 q6 30 -2 60 q-4 20 4 40" fill="none" stroke="var(--foam)" strokeWidth="6" strokeLinecap="round" />
           <path d="M158 70 q-10 20 -6 40" fill="none" stroke="var(--foam)" strokeWidth="5" strokeLinecap="round" />
         </g>
       ) : (
-        <path d="M152 44 H208 L204 68 H156 Z" fill="var(--stopper)" />
+        <g>
+          <rect className="hit" x="146" y="42" width="68" height="30" rx="5" />
+          <path d="M152 44 H208 L204 68 H156 Z" fill="var(--stopper)" />
+        </g>
       )}
+      </Hot>
 
       {/* airlock or blow-off */}
       {!snap.stopperOut && !blowoff && (
-        <g>
+        <Hot part="airlock" label="Airlock: swap to a blow-off tube or refill" onPart={onPart}>
+          <rect className="hit" x="152" y="0" width="56" height="44" rx="6" />
           <path d="M180 44 V34" stroke="var(--glass)" strokeWidth="5" />
           <path d="M166 4 V28 A14 14 0 0 0 194 28 V4" fill="none" stroke="var(--glass)" strokeWidth="5" />
           <circle cx="166" cy="16" r="6" fill="none" stroke="var(--glass)" strokeWidth="3" />
@@ -142,22 +181,25 @@ export function Jug({ tl, snap, view, sensors, lastSample }: Props) {
           {bubbling && (
             <circle className="airbub" cx="194" cy="34" r="3" fill="var(--airlock-liquid)" stroke="var(--glass)" style={{ animationDuration: `${pulse}s` }} />
           )}
-        </g>
+        </Hot>
       )}
       {!snap.stopperOut && blowoff && (
-        <g>
+        <Hot part="airlock" label="Blow-off tube: swap back to the airlock" onPart={onPart}>
+          <path className="hit" d="M180 44 C180 6 318 6 318 360" fill="none" strokeWidth="24" />
+          <rect className="hit" x="288" y="334" width="62" height="82" rx="8" />
           <path d="M180 44 C180 6 318 6 318 360" fill="none" stroke="var(--glass)" strokeWidth="6" />
           <rect x="294" y="340" width="50" height="70" rx="6" fill="var(--glass-in)" stroke="var(--glass)" strokeWidth="3" />
           <rect x="297" y="364" width="44" height="43" rx="4" fill="var(--airlock-liquid)" opacity="0.6" />
           {bubbling && <circle className="airbub jar" cx="318" cy="396" r="3.5" fill="none" stroke="var(--glass)" style={{ animationDuration: `${pulse}s` }} />}
-        </g>
+        </Hot>
       )}
 
       {/* sensor layer */}
       {!curtain && (
         <g className="tags">
           {sensors.has('strip') && (
-            <g>
+            <Hot part="strip" label="Strip thermometer: turn off or learn more" onPart={onPart}>
+              <rect className="hit" x="228" y="208" width="114" height="140" rx="8" />
               <rect x="234" y="246" width="20" height="94" rx="3" fill="var(--panel)" stroke="var(--ink-soft)" />
               {[30, 28, 26, 24, 22, 20, 18, 16, 14].map((v, i) => {
                 const on = strip.lit.includes(v)
@@ -171,23 +213,26 @@ export function Jug({ tl, snap, view, sensors, lastSample }: Props) {
                 )
               })}
               <Tag x={318} y={232} code="TI" num="101" label="Strip" value={strip.text} lineTo={[254, 270]} />
-            </g>
+            </Hot>
           )}
           {sensors.has('probe') && (
-            <g>
+            <Hot part="probe" label="Probe thermometer: turn off or learn more" onPart={onPart}>
+              <rect className="hit" x="14" y="306" width="96" height="84" rx="8" />
               <circle cx="104" cy="330" r="4" fill="var(--ink)" />
               <Tag x={40} y={330} code="TT" num="102" label="Probe" value={`${readProbe(tl, snap).toFixed(1)} °C`} lineTo={[100, 330]} />
-            </g>
+            </Hot>
           )}
           {sensors.has('bubbler') && !blowoff && !snap.stopperOut && (
-            <g>
+            <Hot part="bubbler" label="Bubble counter: turn off or learn more" onPart={onPart}>
+              <rect className="hit" x="264" y="12" width="58" height="80" rx="8" />
               <rect x="198" y="0" width="14" height="10" rx="2" fill="var(--ink-soft)" />
               <Tag x={292} y={36} code="FQ" num="103" label="Bubbles" value={`${readBubbler(tl, snap).toFixed(1)}/min`} lineTo={[212, 6]} />
-            </g>
+            </Hot>
           )}
-          {lastSample && (
-            <Tag x={40} y={236} code="DI" num="105" label="Last sample" value={lastSample.sg.toFixed(3)} dashed lineTo={[92, 236]} />
-          )}
+          <Hot part="sample" label="Gravity: take a hydrometer or refractometer reading" onPart={onPart}>
+            <rect className="hit" x="12" y="212" width="58" height="80" rx="8" />
+            <Tag x={40} y={236} code="DI" num="105" label={lastSample ? 'Last sample' : 'Gravity'} value={lastSample ? lastSample.sg.toFixed(3) : 'tap me'} dashed lineTo={[92, 236]} />
+          </Hot>
         </g>
       )}
 

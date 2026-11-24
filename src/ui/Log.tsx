@@ -1,5 +1,6 @@
 import type { SimEvent } from '../model/sim'
 import { clock } from './derive'
+import { Linkify } from './Info'
 
 export function Log({ events, t, view, onSeek }: { events: SimEvent[]; t: number; view: 'sensors' | 'curtain'; onSeek: (t: number) => void }) {
   const past = events.filter((e) => e.t <= t + 1e-6).reverse()
@@ -19,15 +20,21 @@ export function Log({ events, t, view, onSeek }: { events: SimEvent[]; t: number
           </div>
           {view === 'sensors' ? (
             <>
-              <p className="log-notice">{e.notice}</p>
+              <p className="log-notice">
+                <Linkify text={e.notice} />
+              </p>
               <details>
                 <summary>What’s really happening</summary>
-                <p>{e.reality}</p>
+                <p>
+                  <Linkify text={e.reality} />
+                </p>
               </details>
             </>
           ) : (
             <>
-              <p className="log-reality">{e.reality}</p>
+              <p className="log-reality">
+                <Linkify text={e.reality} />
+              </p>
               <p className="log-notice small">From outside: {e.notice}</p>
             </>
           )}

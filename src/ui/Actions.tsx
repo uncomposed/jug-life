@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LOCATIONS, type LocationId } from '../model/params'
 import type { Action, Snapshot } from '../model/sim'
+import { ClosurePicker } from './Parts'
 
 type NewAction = Action extends infer A ? (A extends Action ? Omit<A, 't'> : never) : never
 
@@ -13,7 +14,7 @@ interface Props {
 
 export function Actions({ snap, onAct, onTaste, futureCount }: Props) {
   const [loc, setLoc] = useState<LocationId>(snap.locationId === 'closet' ? 'kitchen' : 'closet')
-  const sealed = !snap.stopperOut && !snap.airlockDry
+  const sealed = !snap.stopperOut && !snap.airlockDry && !snap.clogged
   return (
     <div className="actions">
       {futureCount > 0 && (
@@ -54,24 +55,19 @@ export function Actions({ snap, onAct, onTaste, futureCount }: Props) {
         </div>
       </section>
       <section>
-        <h3>Hardware</h3>
-        <div className="btn-grid">
-          {snap.closure === 'airlock' ? (
-            <button className="btn" disabled={snap.stopperOut} onClick={() => onAct({ type: 'closure', closure: 'blowoff' })}>
-              Fit a blow-off tube
-              <small>{snap.stopperOut ? 'Reseat the stopper first' : 'Lets foam escape safely'}</small>
-            </button>
-          ) : (
-            <button className="btn" disabled={snap.stopperOut} onClick={() => onAct({ type: 'closure', closure: 'airlock' })}>
-              Back to the airlock
-              <small>{snap.stopperOut ? 'Reseat the stopper first' : 'Once the foam has dropped'}</small>
-            </button>
-          )}
-          <button className={`btn ${!sealed ? 'btn-attn' : ''}`} disabled={sealed} onClick={() => onAct({ type: 'service' })}>
-            {snap.stopperOut ? 'Clean up, reseat stopper' : 'Refill the airlock'}
-            <small>{sealed ? 'Nothing to fix right now' : 'Seal it back up'}</small>
+        <h3>Hardware: what sits on top of the stopper</h3>
+        <p className="hint">Pick one. You can swap whenever the stopper is in. Many brewers use the tube for the foamy first days, then go back to the airlock.</p>
+        <ClosurePicker snap={snap} onAct={onAct} />
+        {sealed ? (
+          <p className="okline">
+            <span aria-hidden="true">✓</span> Sealed and working. Nothing to fix.
+          </p>
+        ) : (
+          <button className="btn btn-attn wide" onClick={() => onAct({ type: 'service' })}>
+            {snap.stopperOut ? 'Clean up and reseat the stopper' : snap.clogged ? 'Clean out and refill the airlock' : 'Refill the airlock'}
+            <small>{snap.stopperOut ? 'The beer is open to the air right now.' : 'Air can get in until you do.'}</small>
           </button>
-        </div>
+        )}
       </section>
       <section>
         <h3>Measure</h3>

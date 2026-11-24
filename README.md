@@ -9,6 +9,8 @@ A fermentation simulator for a 1-gallon glass jug with a rubber stopper and an S
 - **A guided tour.** It opens on the first visit and walks through each part of the screen in 12 short steps. The Tour button brings it back.
 - **Two views of the same jug.** The sensor view shows only what a brewer could actually see or measure: a stick-on strip thermometer, bubbles through the airlock, foam, haze and hand-taken gravity samples. Behind the curtain shows what is really going on: yeast multiplying and settling, sugar turning into alcohol and CO₂, self-heating, wild microbes.
 - **Move time forward and back.** Scrub over three weeks. Every moment is precomputed, so rewinding is instant. If you go back and do something different, later actions are erased and the future re-runs.
+- **Tap the jug.** Tap the airlock, stopper, a sensor, the gravity tag or the beer for a small pop-up with what you can change there.
+- **Learn why.** Every hidden number has an ⓘ button, and underlined words in the tasting notes and log open a short explanation: what it is, what causes it, and what to try.
 - **Do things to it.** Move the jug somewhere warmer or colder, add yeast nutrient, swirl it, fit a blow-off tube, refill the airlock, take a hydrometer or refractometer reading, and taste it.
 - **Make mistakes safely.** Overfill it and the foam pops the stopper. Cold-crash it with a water-filled airlock and it sucks back. Skip sanitizing and it may sour. Each mishap is explained in plain language.
 - **Gluten-free first.** The default recipe is a sorghum pale ale. A barley recipe is included for comparison, with the option of Clarity-Ferm, which makes beer "gluten-reduced", which is not the same as gluten-free.

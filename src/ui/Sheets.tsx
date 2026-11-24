@@ -5,11 +5,28 @@ import { SENSORS, type SensorId } from '../model/sensors'
 import { sgToPlato } from '../model/physics'
 import { taste } from '../model/tasting'
 import { clock } from './derive'
+import { Linkify, Term } from './Info'
+
+const NOTE_TERM: Record<string, string> = {
+  Sweet: 'body',
+  Body: 'body',
+  'Sorghum tang': 'tang',
+  Fruity: 'esters',
+  Clean: 'esters',
+  Hot: 'fusels',
+  Warming: 'fusels',
+  Sour: 'wild',
+  Tart: 'wild',
+  Funky: 'wild',
+  Stale: 'oxidation',
+  Cloudy: 'conditioning',
+}
 
 export function Sheet({ title, onClose, children, footer }: { title: string; onClose: () => void; children: ReactNode; footer?: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    // a pop-up on top gets Escape first
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !document.querySelector('.popover') && onClose()
     window.addEventListener('keydown', onKey)
     ref.current?.focus()
     return () => window.removeEventListener('keydown', onKey)
@@ -197,13 +214,16 @@ export function TastingSheet({ tl, t, onClose }: { tl: Timeline; t: number; onCl
           <li key={n.label} className={`note tone-${n.tone}`}>
             <strong>
               <span aria-hidden="true">{n.tone === 'bad' ? '▲ ' : n.tone === 'good' ? '✓ ' : '• '}</span>
-              {n.label}
+              {NOTE_TERM[n.label] ? <Term id={NOTE_TERM[n.label]}>{n.label}</Term> : n.label}
             </strong>{' '}
-            {n.text}
+            <Linkify text={n.text} />
           </li>
         ))}
       </ul>
-      <p className="small muted">{r.gluten}</p>
+      <p className="small muted">
+        <Linkify text={r.gluten} />
+      </p>
+      <p className="small muted">Tap an underlined word to see what causes it and how to change it.</p>
     </Sheet>
   )
 }
