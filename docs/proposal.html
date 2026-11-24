@@ -1,0 +1,327 @@
+<title>Jug Twin</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; the schematic breaks wider. Gray process scene, color only where something needs attention (an ISA-101 nod). */
+:root{
+  --bg:#eef0f2; --panel:#ffffff; --ink:#1d232a; --muted:#56606b; --line:#c9ced4;
+  --glass:#b9c7d3; --beer:#d9b26a; --foam:#f3ead6;
+  --blue:#0072B2; --sky:#56B4E9; --orange:#E69F00; --verm:#D55E00;
+  --blue-soft:#dcebf5; --orange-soft:#fbefd2;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#161a1e; --panel:#1f252b; --ink:#e7eaee; --muted:#a3adb8; --line:#38414a;
+  --glass:#56687a; --beer:#b98f45; --foam:#d8ccb2;
+  --blue:#56B4E9; --sky:#7cc6ef; --orange:#F0B030; --verm:#F07A3A;
+  --blue-soft:#1b3344; --orange-soft:#3d3115; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#161a1e; --panel:#1f252b; --ink:#e7eaee; --muted:#a3adb8; --line:#38414a;
+  --glass:#56687a; --beer:#b98f45; --foam:#d8ccb2;
+  --blue:#56B4E9; --sky:#7cc6ef; --orange:#F0B030; --verm:#F07A3A;
+  --blue-soft:#1b3344; --orange-soft:#3d3115; color-scheme:dark}
+
+body{background:var(--bg);color:var(--ink);font:17px/1.6 var(--body)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,7vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;margin-top:56px;margin-bottom:12px}
+h3{font-size:1.15rem;font-weight:700;margin-top:24px;margin-bottom:6px}
+p{margin:0 0 14px}
+.eyebrow{font:500 .78rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.2rem;color:var(--ink);margin-top:14px}
+.muted{color:var(--muted)}
+code,.mono{font-family:var(--mono);font-size:.88em}
+a{color:var(--blue)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+ul,ol{padding-left:1.3em;margin:0 0 14px}
+li{margin-bottom:6px}
+
+.figure{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:28px 0}
+.figure svg{display:block;width:100%;height:auto}
+.caption{font-size:.9rem;color:var(--muted);margin-top:8px}
+
+.toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:10px}
+.toggle button{font:500 .85rem var(--mono);background:transparent;color:var(--muted);border:0;padding:6px 14px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+
+.tablewrap{overflow-x:auto;margin:16px 0}
+table{border-collapse:collapse;width:100%;font-size:.95rem;min-width:560px}
+th,td{text-align:left;vertical-align:top;padding:10px 10px;border-bottom:1px solid var(--line)}
+th{font:500 .78rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td:first-child{font-weight:700;white-space:nowrap}
+
+.chip{display:inline-block;font:500 .74rem var(--mono);padding:2px 8px;border-radius:999px;vertical-align:1px}
+.chip.keep{background:var(--blue-soft);color:var(--blue)}
+.chip.skip{background:var(--orange-soft);color:var(--ink);border:1px dashed var(--orange)}
+.chip.unv{background:var(--orange-soft);color:var(--ink)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:16px 0}
+.cols > div{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.cols h3{margin-top:0}
+
+.callout{border-left:4px solid var(--orange);background:var(--orange-soft);padding:12px 16px;border-radius:0 8px 8px 0;margin:20px 0}
+.callout strong{font-family:var(--display)}
+
+.phase{display:grid;grid-template-columns:3.2rem 1fr;gap:12px;margin:18px 0}
+.phase .n{font:800 1.6rem var(--display);color:var(--blue)}
+.phase h3{margin-top:2px}
+
+.eq{font-family:var(--mono);font-size:.88rem;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre;line-height:1.7}
+.sources li{font-size:.9rem;word-break:break-word}
+footer{margin-top:56px;font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:no-preference){.bub{animation:rise 2.6s ease-in infinite}.bub:nth-child(2){animation-delay:.9s}.bub:nth-child(3){animation-delay:1.7s}}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-60px);opacity:0}}
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">Proposal · draft for discussion · 23 Nov 2026</div>
+  <h1>Jug Twin</h1>
+  <p class="lede">A pocket simulator of one gallon of gluten-free beer fermenting in a glass jug. You watch it the way a brewer would, through a few cheap sensors. Then you pull back the curtain and watch the yeast, sugar, alcohol and heat that are really driving those readings.</p>
+  <p class="muted">The setup it models: a 1-gallon glass jug, a drilled rubber stopper and an S-shaped airlock. No sensors yet, which turns out to be useful (see "Pick sensors before you buy them").</p>
+
+  <div class="figure">
+    <div class="toggle" role="group" aria-label="View">
+      <button id="v-sensor" aria-pressed="true">Sensor view</button>
+      <button id="v-curtain" aria-pressed="false">Behind the curtain</button>
+    </div>
+    <svg viewBox="0 0 640 380" role="img" aria-labelledby="schem-t">
+      <title id="schem-t">Schematic of the jug with sensor tags, or the hidden process inside it</title>
+      <!-- jug -->
+      <path d="M250 70 h60 v30 q0 14 22 30 q48 34 48 90 v120 q0 18 -18 18 h-164 q-18 0 -18 -18 v-120 q0 -56 48 -90 q22 -16 22 -30z" fill="var(--panel)" stroke="var(--glass)" stroke-width="4"/>
+      <!-- beer -->
+      <path d="M200 205 q12 -14 30 -26 h120 q18 12 30 26 v135 q0 16 -16 16 h-148 q-16 0 -16 -16z" fill="var(--beer)" opacity=".85"/>
+      <!-- krausen -->
+      <path d="M232 179 q14 -10 28 -2 q14 -10 28 -2 q14 -10 28 -2 q14 -10 32 4 h-116z" fill="var(--foam)"/>
+      <!-- stopper -->
+      <path d="M254 56 h52 l-4 22 h-44z" fill="var(--muted)"/>
+      <!-- S airlock -->
+      <path d="M280 56 v-16 q0 -14 14 -14 q14 0 14 14 v6 q0 14 -14 14 q-14 0 -14 14" fill="none" stroke="var(--glass)" stroke-width="5" opacity=".6"/>
+      <path d="M280 40 q0 -14 14 -14 q14 0 14 14 v8 q0 12 -14 12" fill="none" stroke="var(--glass)" stroke-width="5"/>
+      <path d="M308 40 v-18 M280 40 v16" stroke="var(--glass)" stroke-width="5" fill="none"/>
+      <rect x="301" y="4" width="14" height="10" rx="3" fill="var(--muted)"/>
+      <g id="bubbles"><circle class="bub" cx="294" cy="44" r="3" fill="var(--sky)"/><circle class="bub" cx="294" cy="44" r="2.5" fill="var(--sky)"/><circle class="bub" cx="294" cy="44" r="3.5" fill="var(--sky)"/></g>
+
+      <!-- SENSOR LAYER -->
+      <g id="layer-sensor">
+        <line x1="378" y1="270" x2="440" y2="270" stroke="var(--muted)" stroke-dasharray="4 3"/>
+        <circle cx="470" cy="270" r="30" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="470" y="266" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--ink)">TI</text>
+        <text x="470" y="282" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--muted)">101</text>
+        <text x="510" y="262" font-family="var(--body)" font-size="14" fill="var(--ink)" font-weight="700">Stick-on strip</text>
+        <text x="510" y="280" font-family="var(--mono)" font-size="14" fill="var(--ink)">20 °C · steady</text>
+
+        <line x1="315" y1="9" x2="420" y2="9" stroke="var(--muted)" stroke-dasharray="4 3"/>
+        <circle cx="450" cy="40" r="30" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/>
+        <text x="450" y="36" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--ink)">FQ</text>
+        <text x="450" y="52" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--muted)">103</text>
+        <text x="490" y="32" font-family="var(--body)" font-size="14" fill="var(--ink)" font-weight="700">Bubble counter</text>
+        <text x="490" y="50" font-family="var(--mono)" font-size="14" fill="var(--ink)">2.4 per sec · active</text>
+
+        <line x1="200" y1="280" x2="140" y2="280" stroke="var(--muted)" stroke-dasharray="4 3"/>
+        <circle cx="110" cy="280" r="30" fill="var(--panel)" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="110" y="276" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--ink)">DI</text>
+        <text x="110" y="292" text-anchor="middle" font-family="var(--mono)" font-size="12" fill="var(--muted)">102</text>
+        <text x="16" y="334" font-family="var(--body)" font-size="14" fill="var(--ink)" font-weight="700">Hydrometer sample</text>
+        <text x="16" y="352" font-family="var(--mono)" font-size="14" fill="var(--ink)">1.031 · day 2 (manual)</text>
+
+        <g transform="translate(16 40)">
+          <rect width="190" height="64" rx="8" fill="var(--orange-soft)" stroke="var(--orange)"/>
+          <text x="12" y="24" font-family="var(--body)" font-size="14" font-weight="700" fill="var(--ink)">▲ Headspace low</text>
+          <text x="12" y="44" font-family="var(--body)" font-size="13" fill="var(--ink)">Foam is 2 cm from the</text>
+          <text x="12" y="58" font-family="var(--body)" font-size="13" fill="var(--ink)">stopper. Blow-off risk.</text>
+        </g>
+      </g>
+
+      <!-- CURTAIN LAYER -->
+      <g id="layer-curtain" hidden>
+        <g fill="var(--ink)" opacity=".75">
+          <circle cx="226" cy="230" r="3"/><circle cx="252" cy="250" r="3"/><circle cx="240" cy="290" r="3"/><circle cx="275" cy="225" r="3"/><circle cx="300" cy="270" r="3"/><circle cx="330" cy="240" r="3"/><circle cx="350" cy="300" r="3"/><circle cx="312" cy="318" r="3"/><circle cx="262" cy="320" r="3"/><circle cx="222" cy="330" r="3"/><circle cx="288" cy="295" r="3"/><circle cx="356" cy="260" r="3"/><circle cx="236" cy="262" r="3"/><circle cx="320" cy="205" r="3"/>
+        </g>
+        <g fill="var(--sky)"><circle cx="246" cy="214" r="4"/><circle cx="310" cy="236" r="3"/><circle cx="342" cy="214" r="4"/><circle cx="268" cy="268" r="3"/></g>
+        <g font-family="var(--body)" font-size="14" fill="var(--ink)">
+          <text x="408" y="200" font-weight="700">Yeast</text><text x="408" y="218" font-family="var(--mono)">62 M cells/mL · growing</text>
+          <text x="408" y="246" font-weight="700">Sugar left</text><text x="408" y="264" font-family="var(--mono)">71 g/L of 130</text>
+          <text x="408" y="292" font-weight="700">Alcohol</text><text x="408" y="310" font-family="var(--mono)">2.6 % ABV · rising</text>
+          <text x="408" y="338" font-weight="700">Heat made</text><text x="408" y="356" font-family="var(--mono)">+1.1 °C above room</text>
+          <text x="16" y="200" font-weight="700">CO₂ out so far</text><text x="16" y="218" font-family="var(--mono)">38 L ≈ 19,000 bubbles</text>
+          <text x="16" y="246" font-weight="700">Nutrient (FAN)</text><text x="16" y="264" font-family="var(--mono)">low · sorghum wort</text>
+        </g>
+        <text x="16" y="60" font-family="var(--body)" font-size="13" fill="var(--muted)">Dots = yeast cells (1 dot ≈ 5 M/mL)</text>
+        <text x="16" y="78" font-family="var(--body)" font-size="13" fill="var(--muted)">Blue = CO₂ bubbles leaving solution</text>
+      </g>
+
+      <!-- time bar -->
+      <g transform="translate(16 368)"><text font-family="var(--mono)" font-size="12" fill="var(--muted)">Day 2, 06:00 · fermenting</text></g>
+    </svg>
+    <p class="caption">Mock-up, not the real app. Every number here is illustrative. The sensor tags use the standard instrument codes (TI = temperature indicator, DI = density indicator, FQ = flow counter), always with a plain label next to them. The dashed circle marks a reading you take by hand.</p>
+  </div>
+
+  <h2>The idea in one paragraph</h2>
+  <p>One jug, two views, one clock. The <strong>sensor view</strong> shows only what a real brewer could see: a thermometer strip, airlock bubbles, the odd hydrometer reading, all with realistic noise and lag. <strong>Behind the curtain</strong> shows the true state: yeast multiplying then settling, sugar falling, alcohol rising, CO₂ leaving, the jug warming itself a little. A time scrubber drives both views, so you can drag back to "why did the bubbling stop on day 3?" and see the answer underneath. You can also act on it: pitch, warm it, cool it, rouse the yeast, add nutrient, swap to a blow-off tube. Some actions help and some make things worse, just like the real thing.</p>
+
+  <h2>What already exists</h2>
+  <p>Three research agents surveyed the field. The short version: <strong>lots of tools log fermentation, a few industrial models simulate it, and nothing we found simulates a homebrew batch you can play with.</strong> That gap is the project.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Project</th><th>Good at</th><th>Falls short</th></tr></thead>
+    <tbody>
+      <tr><td>Brewfather</td><td>Charts logged readings against a planned temperature profile, with gravity milestones.</td><td>Plans and logs only. No prediction of the curve.</td></tr>
+      <tr><td>BeerSmith</td><td>Preset fermentation temperature profiles.</td><td>Again a schedule, not a model. The profile is buried in a separate screen.</td></tr>
+      <tr><td>iSpindel / Tilt</td><td>Floating hydrometers that stream gravity and temperature. Open calibration math (angle → gravity).</td><td>Needs calibration, drifts during active ferment. <strong>Too wide for a 1-gallon jug neck.</strong></td></tr>
+      <tr><td>Plaato Airlock</td><td>Counted bubbles to estimate gravity.</td><td>Bubble size varies, foam clogs it, leaks lose gas. One reviewer saw a 1.026 finish that wasn't. The company killed the product line and cloud, and the devices died with it.</td></tr>
+      <tr><td>BrewPi / Fermentrack / Brewblox</td><td>Real temperature control and logging.</td><td>Hardware projects; setup pain dominates the forums.</td></tr>
+      <tr><td>COMSOL, NeqSim, MATLAB models</td><td>Real fermentation physics (Monod kinetics, temperature effects), with equations published.</td><td>Built for industrial lager. Not interactive, not for beginners.</td></tr>
+      <tr><td>PhET, Labster, university bioreactor sims</td><td>Prove that interactive sims teach well.</td><td>Generic lab bioreactors, not a jug on a shelf.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <h3>What to steal</h3>
+  <ol>
+    <li>Brewfather's "expected curve with milestones" overlay.</li>
+    <li>The iSpindel trick of simulating the raw signal, then converting it, so you see the same error a real device would make.</li>
+    <li>A cut-down published kinetic model (details below).</li>
+    <li>BeerJSON, the open recipe format, for loading a recipe.</li>
+    <li>A bubble rate derived from simulated CO₂, with the noise and leaks that sank Plaato left in on purpose.</li>
+  </ol>
+  <h3>Pitfalls to avoid</h3>
+  <ol>
+    <li>Treating bubbles as a gravity reading. They are a vibe, not a measurement, and the sim should teach exactly that.</li>
+    <li>Anything cloud-dependent. Keep it a single local page.</li>
+    <li>Pretending to accuracy. Published model constants come from industrial lager, not sorghum in a gallon jug.</li>
+    <li>Building the engineering before the fun. A beautiful, wrong-ish sim beats a correct one nobody opens.</li>
+  </ol>
+
+  <h2>Standards: borrow the vocabulary, skip the paperwork</h2>
+  <p>Your friend shouldn't need to know any of these. They are here so that what he learns transfers to the real world.</p>
+  <div class="cols">
+    <div>
+      <h3>Borrow</h3>
+      <p><span class="chip keep">ISA-5.1</span> Instrument tags like <code>TI-101</code>, always beside a plain name.</p>
+      <p><span class="chip keep">ISA-101</span> Gray scene, color only when something needs attention. Blue and orange, plus an icon and words, never red and green.</p>
+      <p><span class="chip keep">ISA-88</span> Brew phases on the timeline: pitch, lag, active, slowing, conditioning.</p>
+      <p><span class="chip keep">BeerJSON</span> Recipe in.</p>
+      <p><span class="chip keep">FMI shape</span> The sim is one pure function: state + actions + time → next state. Makes rewind trivial.</p>
+      <p><span class="chip keep">PhET research</span> Make the invisible visible, few controls, instant feedback.</p>
+    </div>
+    <div>
+      <h3>Skip</h3>
+      <p><span class="chip skip">overkill</span> ISO 10628 and 14617 diagram symbols, IEC 62424 data exchange.</p>
+      <p><span class="chip skip">overkill</span> Digital twin platforms: Asset Administration Shell, Eclipse Ditto, OPC UA, Azure Digital Twins.</p>
+      <p><span class="chip skip">overkill</span> Real FMU/Modelica runtimes.</p>
+      <p class="muted">One useful idea from the twin world: a twin should state its fidelity and how it syncs. Ours says on screen, "simulated, not synced to a real jug, numbers are estimates".</p>
+    </div>
+  </div>
+
+  <h2>What's going on under the hood</h2>
+  <p>A small model with four moving parts, based on the published beer models (Gee and Ramirez 1988, de Andrés-Toro 1998) but cut down to what a gallon jug needs.</p>
+  <ol>
+    <li><strong>Yeast</strong> wakes up after a lag, multiplies while there's sugar and nutrient, slows as alcohol builds, then drops out and settles.</li>
+    <li><strong>Sugar</strong> gets eaten at a rate set by how much yeast there is and how warm it is.</li>
+    <li><strong>Alcohol and CO₂</strong> come out in fixed proportions: each gram of sugar makes about half a gram of each.</li>
+    <li><strong>Heat</strong> from fermentation warms the jug, while the jug leaks heat to the room. In a gallon, the room mostly wins.</li>
+  </ol>
+  <div class="eq">growth   dX/dt = μmax · S/(Ks+S) · (1 − E/Emax) · f(T) · lag(t) · X  −  kd·X
+sugar    dS/dt = −q · X · S/(Ks+S) · (1 − E/Emax) · f(T)
+alcohol  dE/dt = 0.47 · (−dS/dt)        CO₂ ≈ 0.46 · (−dS/dt)
+heat     C·dT/dt = ΔH · (−dS/dt) − (T − T_room)/R</div>
+  <p class="caption">X yeast, S sugar, E ethanol, T temperature. f(T) is a temperature curve for ale yeast (sluggish below about 15 °C, off-flavors above about 24 °C).</p>
+
+  <h3>A gallon by the numbers</h3>
+  <p>Starting gravity 1.050, sorghum extract, about 70% of the sugar fermentable:</p>
+  <ul>
+    <li>About 490 g of sugar in the jug; about 345 g of it gets fermented.</li>
+    <li>About 160 g of alcohol, roughly 4.5–5% ABV.</li>
+    <li>About 165 g of CO₂, around 85 litres of gas. At roughly 2 mL a bubble, that's about 40,000 airlock bubbles over the whole batch. At peak that is roughly one bubble every 3 to 5 seconds. (An earlier draft said a few per second; the built model corrected it.)</li>
+    <li>Only about a degree warmer than the room at peak. A 5-gallon batch can run several degrees hot; one gallon sheds heat too fast.</li>
+    <li>One 11.5 g sachet of dry yeast is about five times what a gallon needs, a good "pitch rate" lesson.</li>
+  </ul>
+  <div class="callout"><strong>These numbers are estimates.</strong> The research agents could not open the papers with the fitted constants, and sources disagree about threefold on the heat fermentation gives off. The sim will mark every tunable number and say where it came from. It is <em>unvalidated</em> until it's compared against a real batch.</div>
+
+  <h2>Gluten-free mode</h2>
+  <p>This is where the sim gets interesting, because gluten-free brewing fails in specific, simulatable ways.</p>
+  <ul>
+    <li><strong>Gluten-free vs gluten-reduced.</strong> In the US, "gluten-free" means under 20 ppm. A sorghum or millet beer is gluten-free by ingredients. A barley beer treated with an enzyme like Clarity-Ferm is only "gluten-reduced", because the tests for it are contested. The recipe picker teaches this.</li>
+    <li><strong>Hungry yeast.</strong> Sorghum wort is low in the nitrogen yeast need (FAN), so fermentations start slow and stall. Adding yeast nutrient is a real lever in the sim.</li>
+    <li><strong>Higher finish.</strong> Sorghum extract ferments less completely, so the beer ends sweeter and thinner (finishing gravity around 1.010–1.020).</li>
+    <li><strong>The sorghum tang.</strong> A known sour note; the tasting card at the end mentions it.</li>
+    <li><strong>All-grain later.</strong> Millet, buckwheat and rice need added enzymes and hotter mash temperatures. That's a stretch goal; extract first.</li>
+  </ul>
+
+  <h2>Things that can go wrong (the fun part)</h2>
+  <div class="cols">
+    <div><h3>Blow-off</h3><p>A full gallon jug has almost no headspace. Foam climbs, clogs the airlock, pressure builds, the stopper pops. Fix: blow-off tube, or fill less.</p></div>
+    <div><h3>Suck-back</h3><p>The room cools overnight, the gas in the jug shrinks and pulls airlock liquid into the beer. Fix: steady temperature, sanitizer in the airlock.</p></div>
+    <div><h3>Stuck ferment</h3><p>Too cold or too little nutrient and the yeast quit early. Fix: warm it, rouse it, add nutrient.</p></div>
+    <div><h3>Hot ferment</h3><p>Above about 24 °C you get harsh fusel and fruity esters. The sim tracks a "flavor debt".</p></div>
+    <div><h3>Infection</h3><p>Skipping sanitation rolls dice. Wild yeast or bacteria show up days later as gravity creeping below where it should stop.</p></div>
+    <div><h3>Leaky stopper</h3><p>No bubbles, but fermentation is fine. The classic beginner panic, and the reason the curtain view exists.</p></div>
+  </div>
+
+  <h2>Pick sensors before you buy them</h2>
+  <p>His jug has no sensors yet, which is a feature. The sim lets him add virtual ones and see what each would and wouldn't tell him:</p>
+  <ul>
+    <li><strong>Stick-on thermometer strip</strong> (a few dollars): reads the glass, not the beer, in 1–2 °C steps.</li>
+    <li><strong>Digital probe</strong>: about ±0.5 °C, a little lag.</li>
+    <li><strong>Bubble counter</strong>: activity, not progress. Lies when the stopper leaks.</li>
+    <li><strong>Hydrometer or refractometer sample</strong>: the real answer, but by hand, and you lose a little beer each time. The refractometer needs a correction once alcohol is present.</li>
+    <li><strong>Floating hydrometer</strong> (Tilt, iSpindel): great data, won't fit the neck. The sim can say so.</li>
+  </ul>
+
+  <h2>Build plan</h2>
+  <div class="phase"><div class="n">1</div><div><h3>A jug you can watch (one weekend)</h3><p>The core model, the schematic with sensor and curtain views, the time scrubber, one recipe (sorghum extract, US-05-style ale yeast). Single web page, runs offline.</p></div></div>
+  <div class="phase"><div class="n">2</div><div><h3>A jug you can mess up</h3><p>Actions (temperature, rouse, nutrient, blow-off tube) and the failure events above. A "what changed?" note whenever the phase shifts.</p></div></div>
+  <div class="phase"><div class="n">3</div><div><h3>A jug that matches his jug</h3><p>He brews a real batch with a thermometer strip and a few hydrometer readings, logs them, and the sim overlays them on its prediction. That's the first real validation, and the most interesting result either way.</p></div></div>
+  <div class="phase"><div class="n">4</div><div><h3>Stretch goals</h3><p>All-grain gluten-free mashing with enzymes, a mass-balance flow chart (sugar splitting into alcohol, CO₂ and heat), bottle conditioning and carbonation, a "brew day" story mode.</p></div></div>
+
+  <h2>How we'd know this was the wrong call</h2>
+  <ol>
+    <li>If his real batch's gravity curve lands far outside the sim's range even after tuning, the cut-down model is too simple and we need the fuller published one.</li>
+    <li>If he opens it once and never again, the fun loop (actions and events) matters more than the physics, so we shift effort there.</li>
+    <li>If he never looks behind the curtain, the two-view idea isn't landing and the schematic needs rethinking.</li>
+  </ol>
+
+  <h2>Questions for your friend</h2>
+  <ol>
+    <li>Extract (sorghum syrup) or all-grain (millet, buckwheat)? This decides whether phase 1 includes mashing.</li>
+    <li>Which yeast is he planning on?</li>
+    <li>Where will the jug live? A closet with a steady temperature or a kitchen that swings overnight changes which failure he's most likely to hit.</li>
+    <li>Is he willing to buy a $5 thermometer strip and take three hydrometer readings? That's all phase 3 needs.</li>
+  </ol>
+
+  <h2>Sources</h2>
+  <p class="muted">Gathered by three AI research agents on 23 Nov 2026. Several links come from search listings and were not opened; parameter values were not confirmed from primary papers. Spot-check before relying on any of them.</p>
+  <ul class="sources">
+    <li>FDA gluten-free labeling rule: <a href="https://www.fda.gov/food/allergens/questions-and-answers-gluten-free-food-labeling-final-rule">fda.gov</a></li>
+    <li>TTB Ruling 2020-2 on gluten claims: <a href="https://www.ttb.gov/laws-regulations-and-public-guidance/rulings/r2020-2">ttb.gov</a></li>
+    <li>COMSOL beer fermentation model (Gee and Ramirez based): <a href="https://www.comsol.com/blogs/better-brewing-modeling-beer-fermentation">comsol.com blog</a></li>
+    <li>de Andrés-Toro et al. 1998, Math. Comput. Simul. 48:65–74: <a href="https://ideas.repec.org/a/eee/matcom/v48y1998i1p65-74.html">ideas.repec.org</a></li>
+    <li>Rodman and Gerogiorgis re-fit of beer fermentation parameters: <a href="https://www.pure.ed.ac.uk/ws/files/24789868/FBP_03_2016.pdf">Edinburgh PDF</a></li>
+    <li>NeqSim beer bioprocess example: <a href="https://equinor.github.io/neqsim/examples/BeerBrewing_BioProcess_Simulation">equinor.github.io</a></li>
+    <li>Brewfather fermentation profiles: <a href="https://docs.brewfather.app/profiles/fermentation">docs.brewfather.app</a></li>
+    <li>iSpindel calibration and temperature notes: <a href="https://vitotai.github.io/posts/temperature-and-calibrating-ispindel/">vitotai.github.io</a></li>
+    <li>Tilt hydrometer review: <a href="https://brulosophy.com/2022/01/13/product-review-tilt-wireless-hydrometer-thermometer/">brulosophy.com</a></li>
+    <li>Plaato Airlock user reports: <a href="https://www.homebrewtalk.com/threads/plaato-airlock-v3-wireless-hydrometer-and-airlock.686689/post-9012079">homebrewtalk.com</a></li>
+    <li>BeerJSON recipe format: <a href="https://github.com/beerjson/beerjson">github.com/beerjson</a></li>
+    <li>PhET design research: <a href="https://phet.colorado.edu/en/about/research">phet.colorado.edu</a></li>
+    <li>Okabe-Ito colorblind-safe palette: <a href="https://jfly.uni-koeln.de/color/">jfly.uni-koeln.de</a></li>
+  </ul>
+
+  <footer>The original proposal, drafted by Claude before the build and kept for reference. The built app differs in places; the schematic here is a mock-up.</footer>
+</div>
+
+<script>
+(function(){
+  var bs=document.getElementById('v-sensor'), bc=document.getElementById('v-curtain');
+  var ls=document.getElementById('layer-sensor'), lc=document.getElementById('layer-curtain');
+  function set(curtain){
+    ls.toggleAttribute('hidden',curtain); lc.toggleAttribute('hidden',!curtain);
+    bs.setAttribute('aria-pressed',String(!curtain)); bc.setAttribute('aria-pressed',String(curtain));
+  }
+  bs.addEventListener('click',function(){set(false)});
+  bc.addEventListener('click',function(){set(true)});
+})();
+</script>
