@@ -6,6 +6,7 @@ A fermentation simulator for a 1-gallon glass jug with a rubber stopper and an S
 
 ## What you can do
 
+- **A guided tour.** It opens on the first visit and walks through each part of the screen in 12 short steps. The Tour button brings it back.
 - **Two views of the same jug.** The sensor view shows only what a brewer could actually see or measure: a stick-on strip thermometer, bubbles through the airlock, foam, haze and hand-taken gravity samples. Behind the curtain shows what is really going on: yeast multiplying and settling, sugar turning into alcohol and CO₂, self-heating, wild microbes.
 - **Move time forward and back.** Scrub over three weeks. Every moment is precomputed, so rewinding is instant. If you go back and do something different, later actions are erased and the future re-runs.
 - **Do things to it.** Move the jug somewhere warmer or colder, add yeast nutrient, swirl it, fit a blow-off tube, refill the airlock, take a hydrometer or refractometer reading, and taste it.

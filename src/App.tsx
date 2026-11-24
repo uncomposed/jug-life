@@ -10,6 +10,7 @@ import { Actions, type NewAction } from './ui/Actions'
 import { Log } from './ui/Log'
 import { AboutSheet, SensorSheet, SetupSheet, TastingSheet } from './ui/Sheets'
 import { hiddenAlerts, visibleAlerts } from './ui/derive'
+import { Tour } from './ui/Tour'
 
 type View = 'sensors' | 'curtain'
 type Tab = 'charts' | 'actions' | 'log'
@@ -25,6 +26,15 @@ interface Saved {
 }
 
 const KEY = 'jug-twin:v1'
+const TOUR_KEY = 'jug-twin:toured'
+
+function firstVisit(): boolean {
+  try {
+    return !localStorage.getItem(TOUR_KEY)
+  } catch {
+    return false
+  }
+}
 const DEFAULT: Saved = {
   v: 1,
   setup: defaultSetup(),
@@ -59,6 +69,7 @@ export default function App() {
   const [speed, setSpeed] = useState(6)
   const [sheet, setSheet] = useState<SheetName>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [touring, setTouring] = useState(firstVisit)
 
   const tl = useMemo(() => runTimeline(setup, actions), [setup, actions])
   const idx = Math.min(tl.snapshots.length - 1, Math.round(t / tl.stepH))
@@ -132,6 +143,16 @@ export default function App() {
           </span>
         </div>
         <nav className="top-actions">
+          <button
+            className="btn ghost"
+            onClick={() => {
+              setPlaying(false)
+              setSheet(null)
+              setTouring(true)
+            }}
+          >
+            Tour
+          </button>
           <button className="btn ghost" onClick={() => setSheet('sensors')}>
             Sensors
           </button>
@@ -237,6 +258,20 @@ export default function App() {
       )}
       {sheet === 'taste' && <TastingSheet tl={tl} t={t} onClose={() => setSheet(null)} />}
       {sheet === 'about' && <AboutSheet onClose={() => setSheet(null)} />}
+      {touring && (
+        <Tour
+          onView={setView}
+          onTab={setTab}
+          onClose={() => {
+            setTouring(false)
+            try {
+              localStorage.setItem(TOUR_KEY, '1')
+            } catch {
+              /* ignore */
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
