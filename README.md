@@ -2,6 +2,8 @@
 
 A fermentation simulator for a 1-gallon glass jug with a rubber stopper and an S-shaped airlock. It runs in a phone or desktop browser, with nothing to install.
 
+**Play it:** https://uncomposed.github.io/jug-life/
+
 **It is a simulation.** It is not connected to a real jug, and the model has not been checked against a real batch yet. Treat the numbers as plausible, not true.
 
 ## What you can do
@@ -45,4 +47,25 @@ npm test
 
 ## Deploy
 
-Pushing to `main` builds, tests and publishes the site to GitHub Pages through `.github/workflows/deploy.yml`. In the repository settings, set Pages to deploy from GitHub Actions.
+Merging to `main` builds, tests and publishes the site to GitHub Pages through `.github/workflows/deploy.yml`.
+
+## Collaborate
+
+Changes go through a pull request. The tests must pass before it can merge, and no approval is required. The full loop and the ground rules for people and AI agents are in [AGENTS.md](AGENTS.md).
+
+First-time setup, after accepting the invite to this repository:
+
+1. Install [Git](https://git-scm.com), [Node.js 22](https://nodejs.org) and the [GitHub CLI](https://cli.github.com).
+2. Sign in to GitHub yourself:
+
+```bash
+gh auth login
+```
+
+3. Get the code:
+
+```bash
+gh repo clone uncomposed/jug-life
+```
+
+4. Open the `jug-life` folder with your AI agent and ask it to read `AGENTS.md`.
